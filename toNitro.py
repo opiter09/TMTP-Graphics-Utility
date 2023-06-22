@@ -57,21 +57,23 @@ for val in sys.argv[1:]:
         new = open("test.ncer", "ab")        
         
         offset = int.from_bytes(file[32:36], "little")
-        size = int((len(file) - offset) * 14/8)
+        spOffset = int.from_bytes(file[24:28], "little")
+        spNum = int.from_bytes(file[20:24], "little")
+        size = (spNum * 8) + int((len(file) - offset) * 0.75)
         new.write((0x5245434E).to_bytes(4, "big"))
         new.write((0xFFFE0001).to_bytes(4, "big"))
         new.write((16 + 32 + size).to_bytes(4, "little"))
         new.write((0x10000100).to_bytes(4, "big"))
         new.write((0x4B424543).to_bytes(4, "big"))
         new.write((32 + size).to_bytes(4, "little"))
-        new.write(file[28:30])
+        new.write(file[20:22])
         new.write(bytes(2))
         new.write((0x18).to_bytes(4, "little"))
         new.write((4).to_bytes(4, "little"))
         new.write(bytes(12))
-        for i in range(size // 14):
-            new.write((1).to_bytes(4, "little"))
-            new.write((i * 6).to_bytes(4, "little"))
+        for i in range(spOffset, offset, 4):
+            new.write(int.from_bytes(file[(i + 2):(i + 4)], "little").to_bytes(4, "little"))
+            new.write((int.from_bytes(file[i:(i + 2)], "little") * 6).to_bytes(4, "little"))
         for i in range(offset, len(file), 8):
             # payload = int.from_bytes(file[i:(i + 6)], "little")
             # tile = (payload >> 32) & 0x3FF
