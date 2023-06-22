@@ -72,4 +72,45 @@ for val in sys.argv[1:]:
         for i in range(offset, len(file), 8):
             new.write(file[i:(i + 6)])
         new.close()
+        
+        newA = open("test.nanr", "wb")
+        newA.close()
+        newA = open("test.nanr", "ab")        
+        
+        anNum = int.from_bytes(file[4:8], "little")
+        anOffset = int.from_bytes(file[8:12], "little")
+        frNum = int.from_bytes(file[12:16], "little")
+        frOffset = int.from_bytes(file[16:20], "little")
+        spNum = int.from_bytes(file[20:24], "little")
+        spOffset = int.from_bytes(file[24:28], "little")
+        mainSize = (anNum * 16) + (frNum * 8) + (spNum * 4)
+        newA.write((0x524E414E).to_bytes(4, "big"))
+        newA.write((0xFFFE0001).to_bytes(4, "big"))
+        newA.write((16 + 32 + mainSize).to_bytes(4, "little"))
+        newA.write((0x10000100).to_bytes(4, "big"))
+        newA.write((0x4B4E4241).to_bytes(4, "big"))
+        newA.write((32 + mainSize).to_bytes(4, "little"))
+        newA.write(file[4:6])
+        newA.write(file[12:14])
+        newA.write((0x18).to_bytes(4, "little"))
+        newA.write((0x18 + (anNum * 16)).to_bytes(4, "little"))
+        newA.write((0x18 + (anNum * 16) + (frNum * 8)).to_bytes(4, "little"))
+        newA.write(bytes(8))
+        for i in range(anOffset, frOffset, 8):
+            newA.write(file[(i + 4):(i + 8)])
+            newA.write(bytes(2))
+            newA.write((1).to_bytes(2, "little"))
+            newA.write(bytes(4))
+            newA.write((int.from_bytes(file[i:(i + 2)], "little") * 8).to_bytes(4, "little"))
+        for i in range(frOffset, spOffset, 4):
+            newA.write((int.from_bytes(file[i:(i + 2)], "little") * 4).to_bytes(4, "little"))
+            newA.write(file[(i + 2):(i + 4)])
+            newA.write((0xBEEF).to_bytes(2, "big"))
+        for i in range(spOffset, offset, 4):
+            newA.write(file[i:(i + 2)])
+            if (i == (offset - 4)):
+                newA.write((0xCCCC).to_bytes(2, "big"))
+            else:
+                newA.write(bytes(2))
+        newA.close()
     
