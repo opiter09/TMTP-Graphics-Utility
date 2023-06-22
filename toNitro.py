@@ -32,21 +32,23 @@ for val in sys.argv[1:]:
         new = open("test.ncgr", "ab")
 
         size = len(file) - 16
+        mod = ((size // 32) % 32) * 32
         new.write((0x5247434E).to_bytes(4, "big"))
         new.write((0xFFFE0101).to_bytes(4, "big"))
-        new.write((16 + 32 + size).to_bytes(4, "little"))
+        new.write((16 + 32 + size + mod).to_bytes(4, "little"))
         new.write((0x10000100).to_bytes(4, "big"))
         new.write((0x52414843).to_bytes(4, "big"))
-        new.write((32 + size).to_bytes(4, "little"))
-        new.write((size // 2048).to_bytes(2, "little"))
+        new.write((32 + size + mod).to_bytes(4, "little"))
+        new.write(((size + mod) // 2048).to_bytes(2, "little"))
         if (file[4] == 0):
             new.write((0x200003000000).to_bytes(6, "big"))
         else:
             new.write((0x200004000000).to_bytes(6, "big"))
         new.write(bytes(8))
-        new.write(size.to_bytes(4, "little"))
+        new.write((size + mod).to_bytes(4, "little"))
         new.write((0x18).to_bytes(4, "little"))
         new.write(file[16:])
+        new.write(bytes(mod))
         new.close()
     elif (val.endswith(".vce") == True):
         f = open(val, "rb")
