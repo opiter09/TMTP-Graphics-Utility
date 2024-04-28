@@ -3,3 +3,5 @@ This set of Python scripts converts graphics from Too Much Tingle Pack (and the 
 missing link in the process described in my Text Editor repository: https://github.com/opiter09/TMTP-Text-Editor.
 
 Once you turn graphics into NCGR/NCLR/NCER/NANR, you can open and edit them using NitroPaint: https://github.com/Garhoogin/NitroPaint.
+
+Currently, this basically doesn't work and has a lot of problems. If anyone can figure out what's wrong, please let me know.
